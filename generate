@@ -1,0 +1,56 @@
+package aatm;
+import java.io.FileOutputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+
+public class Generate_pdf {
+public static void main(String[]args)
+{
+	try {
+		String file_name="C:\\Users\\harin\\Downloads\\Statement\\statement.pdf";
+		Document document=new Document();
+		PdfWriter.getInstance(document,new FileOutputStream(file_name));
+		document.open();
+		Connection connection=DriverManager.getConnection("jdbc:mysql://localhost:3306/atm","root","root");
+		PreparedStatement ps=null;
+		ResultSet rs= null;
+		String query ="select *from transactions where id=6";
+		ps=connection.prepareStatement(query);
+		rs=ps.executeQuery();
+		PdfPTable table=new PdfPTable(4);
+		PdfPCell c1=new PdfPCell(new Phrase("ID"));
+		table.addCell(c1);
+		c1=new PdfPCell(new Phrase("DEPOSIT"));
+		table.addCell(c1);
+		c1=new PdfPCell(new Phrase("WITHDRAW"));
+		table.addCell(c1);
+		c1=new PdfPCell(new Phrase("BALANCE"));
+		table.addCell(c1);
+		while(rs.next()) {
+			table.addCell(rs.getString("id"));
+			table.addCell(rs.getString("stat"));
+			table.addCell(rs.getString("amount"));
+			table.addCell(rs.getString("bal"));
+			
+			document.add(new Paragraph(" "));
+		}
+		document.add(table);
+		document.close();
+		System.out.println("Finished");
+	}
+	catch(Exception e)
+	{
+		System.err.println(e);
+	}
+
+}
+}
